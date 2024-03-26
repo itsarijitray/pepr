@@ -280,8 +280,13 @@ export function secretOverLimit(str: string): boolean {
   return sizeInBytes > oneMiBInBytes;
 }
 
+/*
+ * parseTimeout function signature is based on a commander callback
+ * that takes a string and a number as arguments.
+ */
+
 /* eslint-disable @typescript-eslint/no-unused-vars */
-export const parseTimeout = (value: string, previous: unknown): number => {
+export const parseTimeout = (value: string, previous: number): number => {
   const parsedValue = parseInt(value, 10);
   const floatValue = parseFloat(value);
   if (isNaN(parsedValue)) {

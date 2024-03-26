@@ -35,7 +35,7 @@ export async function mutateProcessor(
   // If the resource is a secret, decode the data
   const isSecret = req.kind.version == "v1" && req.kind.kind == "Secret";
   if (isSecret) {
-    skipDecode = convertFromBase64Map(wrapped.Raw as unknown as kind.Secret);
+    skipDecode = convertFromBase64Map(wrapped.Raw as kind.Secret);
   }
 
   Log.info(reqMetadata, `Processing request`);
@@ -124,7 +124,7 @@ export async function mutateProcessor(
 
   // Post-process the Secret requests to convert it back to the original format
   if (isSecret) {
-    convertToBase64Map(transformed as unknown as kind.Secret, skipDecode);
+    convertToBase64Map(transformed as kind.Secret, skipDecode);
   }
 
   // Compare the original request to the modified request to get the patches

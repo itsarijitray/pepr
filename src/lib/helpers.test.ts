@@ -834,7 +834,7 @@ describe("namespaceDeploymentsReady", () => {
 });
 
 describe("parseTimeout", () => {
-  const PREV = "a";
+  const PREV = 9;
   test("should return a number when a valid string number between 1 and 30 is provided", () => {
     expect(parseTimeout("5", PREV)).toBe(5);
     expect(parseTimeout("1", PREV)).toBe(1);
