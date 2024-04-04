@@ -11,8 +11,11 @@ on:
 
 jobs:
   whereami:
-    - name: pathplz
-      run: pwd
+    name: tbd
+    runs-on: ubuntu-latest
+    steps:
+      - name: pathplz
+        run: pwd
 
 
   # examples-matrix:
