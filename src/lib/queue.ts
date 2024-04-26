@@ -35,7 +35,7 @@ export class Queue<K extends KubernetesObject> {
    * @returns A promise that resolves when the object is reconciled
    */
   enqueue(item: K, type: WatchPhase) {
-    Log.debug(`Enqueueing ${item.metadata!.namespace}/${item.metadata!.name}`);
+    Log.debug(`Enqueueing ${item.metadata!.namespace}/${item.metadata!.name}, queue length ${this.#queue.length}`);
     return new Promise<void>((resolve, reject) => {
       this.#queue.push({ item, type, resolve, reject });
       return this.#dequeue();
