@@ -87,31 +87,33 @@ async function runBinding(binding: Binding, capabilityNamespaces: string[]) {
     }
   }, watchCfg);
 
+  const cacheId = watcher.getCacheID();
+
   // If failure continues, log and exit
   watcher.events.on(WatchEvent.GIVE_UP, err => {
     Log.error(err, "Watch failed after 5 attempts, giving up");
     process.exit(1);
   });
 
-  watcher.events.on(WatchEvent.CONNECT, () => logEvent(WatchEvent.CONNECT));
+  watcher.events.on(WatchEvent.CONNECT, () => logEvent(cacheId, WatchEvent.CONNECT));
 
   watcher.events.on(WatchEvent.BOOKMARK, obj =>
-    logEvent(WatchEvent.BOOKMARK, "Changes up to the given resourceVersion have been sent.", obj),
+    logEvent(cacheId, WatchEvent.BOOKMARK, "Changes up to the given resourceVersion have been sent.", obj),
   );
 
-  watcher.events.on(WatchEvent.DATA_ERROR, err => logEvent(WatchEvent.DATA_ERROR, err.message));
+  watcher.events.on(WatchEvent.DATA_ERROR, err => logEvent(cacheId, WatchEvent.DATA_ERROR, err.message));
   watcher.events.on(WatchEvent.RESOURCE_VERSION, resourceVersion =>
-    logEvent(WatchEvent.RESOURCE_VERSION, `Resource version: ${resourceVersion}`),
+    logEvent(cacheId, WatchEvent.RESOURCE_VERSION, `Resource version: ${resourceVersion}`),
   );
   watcher.events.on(WatchEvent.RECONNECT, (err, retryCount) =>
-    logEvent(WatchEvent.RECONNECT, `Reconnecting after ${retryCount} attempts`, err),
+    logEvent(cacheId, WatchEvent.RECONNECT, `Reconnecting after ${retryCount} attempts`, err),
   );
-  watcher.events.on(WatchEvent.RECONNECT_PENDING, () => logEvent(WatchEvent.RECONNECT_PENDING));
-  watcher.events.on(WatchEvent.GIVE_UP, err => logEvent(WatchEvent.GIVE_UP, err.message));
-  watcher.events.on(WatchEvent.ABORT, err => logEvent(WatchEvent.ABORT, err.message));
-  watcher.events.on(WatchEvent.OLD_RESOURCE_VERSION, err => logEvent(WatchEvent.OLD_RESOURCE_VERSION, err));
-  watcher.events.on(WatchEvent.RESYNC, err => logEvent(WatchEvent.RESYNC, err.message));
-  watcher.events.on(WatchEvent.NETWORK_ERROR, err => logEvent(WatchEvent.NETWORK_ERROR, err.message));
+  watcher.events.on(WatchEvent.RECONNECT_PENDING, () => logEvent(cacheId, WatchEvent.RECONNECT_PENDING));
+  watcher.events.on(WatchEvent.GIVE_UP, err => logEvent(cacheId, WatchEvent.GIVE_UP, err.message));
+  watcher.events.on(WatchEvent.ABORT, err => logEvent(cacheId, WatchEvent.ABORT, err.message));
+  watcher.events.on(WatchEvent.OLD_RESOURCE_VERSION, err => logEvent(cacheId, WatchEvent.OLD_RESOURCE_VERSION, err));
+  watcher.events.on(WatchEvent.RESYNC, err => logEvent(cacheId, WatchEvent.RESYNC, err.message));
+  watcher.events.on(WatchEvent.NETWORK_ERROR, err => logEvent(cacheId, WatchEvent.NETWORK_ERROR, err.message));
 
   // Start the watch
   try {
@@ -122,10 +124,10 @@ async function runBinding(binding: Binding, capabilityNamespaces: string[]) {
   }
 }
 
-export function logEvent(type: WatchEvent, message: string = "", obj?: KubernetesObject) {
+export function logEvent(cacheId: string, type: WatchEvent, message: string = "", obj?: KubernetesObject) {
   if (obj) {
-    Log.debug(obj, `Watch event ${type} received`, message);
+    Log.debug(obj, `${cacheId}: Watch event ${type} received`, message);
   } else {
-    Log.debug(`Watch event ${type} received`, message);
+    Log.debug(`${cacheId}: Watch event ${type} received`, message);
   }
 }

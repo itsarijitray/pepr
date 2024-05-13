@@ -217,25 +217,25 @@ describe("logEvent function", () => {
   it("should handle data events", () => {
     const mockObj = { id: "123", type: "Pod" } as KubernetesObject;
     const message = "Test message";
-    logEvent(WatchEvent.DATA, message, mockObj);
-    expect(Log.debug).toHaveBeenCalledWith(mockObj, `Watch event ${WatchEvent.DATA} received`, message);
+    logEvent("test", WatchEvent.DATA, message, mockObj);
+    expect(Log.debug).toHaveBeenCalledWith(mockObj, `test: Watch event ${WatchEvent.DATA} received`, message);
   });
 
   it("should handle CONNECT events", () => {
-    logEvent(WatchEvent.CONNECT);
-    expect(Log.debug).toHaveBeenCalledWith(`Watch event ${WatchEvent.CONNECT} received`, "");
+    logEvent("test", WatchEvent.CONNECT);
+    expect(Log.debug).toHaveBeenCalledWith(`test: Watch event ${WatchEvent.CONNECT} received`, "");
   });
 
   it("should handle BOOKMARK events", () => {
     const mockObj = { id: "123", type: "Pod" } as KubernetesObject;
     const message = "Changes up to the given resourceVersion have been sent.";
-    logEvent(WatchEvent.BOOKMARK, message, mockObj);
-    expect(Log.debug).toHaveBeenCalledWith(mockObj, `Watch event ${WatchEvent.BOOKMARK} received`, message);
+    logEvent("test", WatchEvent.BOOKMARK, message, mockObj);
+    expect(Log.debug).toHaveBeenCalledWith(mockObj, `test: Watch event ${WatchEvent.BOOKMARK} received`, message);
   });
 
   it("should handle DATA_ERROR events", () => {
     const message = "Test message";
-    logEvent(WatchEvent.DATA_ERROR, message);
-    expect(Log.debug).toHaveBeenCalledWith(`Watch event ${WatchEvent.DATA_ERROR} received`, message);
+    logEvent("test", WatchEvent.DATA_ERROR, message);
+    expect(Log.debug).toHaveBeenCalledWith(`test: Watch event ${WatchEvent.DATA_ERROR} received`, message);
   });
 });
