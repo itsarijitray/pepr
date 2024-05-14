@@ -17,10 +17,15 @@ type QueueItem<K extends KubernetesObject> = {
 export class Queue<K extends KubernetesObject> {
   #queue: QueueItem<K>[] = [];
   #pendingPromise = false;
+  #cacheId?: string;
   #reconcile?: (obj: KubernetesObject, type: WatchPhase) => Promise<void>;
 
   constructor() {
     this.#reconcile = async () => await new Promise(resolve => resolve());
+  }
+
+  setCacheId(cacheId: string) {
+    this.#cacheId = cacheId;
   }
 
   setReconcile(reconcile: (obj: KubernetesObject, type: WatchPhase) => Promise<void>) {
@@ -35,7 +40,7 @@ export class Queue<K extends KubernetesObject> {
    * @returns A promise that resolves when the object is reconciled
    */
   enqueue(item: K, type: WatchPhase) {
-    Log.debug(`Enqueueing ${item.metadata!.namespace}/${item.metadata!.name}`);
+    Log.debug(`${this.#cacheId}: Enqueueing ${item.metadata!.namespace}/${item.metadata!.name}`);
     return new Promise<void>((resolve, reject) => {
       this.#queue.push({ item, type, resolve, reject });
       return this.#dequeue();
@@ -50,7 +55,7 @@ export class Queue<K extends KubernetesObject> {
   async #dequeue() {
     // If there is a pending promise, do nothing
     if (this.#pendingPromise) {
-      Log.debug("Pending promise, not dequeuing");
+      Log.debug(`${this.#cacheId}: Pending promise, not dequeuing`);
       return false;
     }
 
@@ -59,7 +64,7 @@ export class Queue<K extends KubernetesObject> {
 
     // If there is no element, do nothing
     if (!element) {
-      Log.debug("No element, not dequeuing");
+      Log.debug(`${this.#cacheId}: No element, not dequeuing`);
       return false;
     }
 
@@ -69,17 +74,17 @@ export class Queue<K extends KubernetesObject> {
 
       // Reconcile the element
       if (this.#reconcile) {
-        Log.debug(`Reconciling ${element.item.metadata!.name}`);
+        Log.debug(`${this.#cacheId}: Reconciling ${element.item.metadata!.name}`);
         await this.#reconcile(element.item, element.type);
       }
 
       element.resolve();
     } catch (e) {
-      Log.debug(`Error reconciling ${element.item.metadata!.name}`, { error: e });
+      Log.debug(`${this.#cacheId}: Error reconciling ${element.item.metadata!.name}`, { error: e });
       element.reject(e);
     } finally {
       // Reset the pending promise flag
-      Log.debug("Resetting pending promise and dequeuing");
+      Log.debug(`${this.#cacheId}: Resetting pending promise and dequeuing`);
       this.#pendingPromise = false;
 
       // After the element is reconciled, dequeue the next element
